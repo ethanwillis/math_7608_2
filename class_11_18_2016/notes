@@ -1,0 +1,138 @@
+## numericacal optimizations
+## given a function f() what value of x makes f() as large or small 
+## as it can be
+## obtain estimates that maximize a likelihood function
+## Sometimes we can get direct values for x
+## other times we need numerical methods
+
+Example: Consider minimizing the function f(x) = | x - 3.5 | + (x-2)^2 on [0,5]
+
+Genetic algorithm?
+
+f<-function(x) { abs(x-3.5)+x-2)^2}
+
+## Some methods available for optimizatioon include 
+## Golden section method
+## Newton Rhapsom
+## Fisher's Information , Fisher's scoring algorithm
+## Nelder-Mead Simplex
+## in R there is a package called optim()
+## default of optim() is Nelder-Mead Simplex method, Newton, quasi-newton
+
+fw<-function(x) {
+    10*sin(0.3*x)*sin(1.34*x^2) + .00001*x^4+.2*x + 80
+}
+plot(fw,-50,50,n=1000,main="optim() minimized wild function")
+
+res<-optim(50,fw,method="SANN",control=list(maxit=20000, temp=20, parscale=20))
+print(res)
+summary(res)
+
+If convergence is 1 it converged.
+fr<-function(x) {
+    x1<-x[1]
+    x2<-x[2]
+    100*(x2-x1*x1)^2 + (1-x1)^2
+}
+
+optim(c(-1.2,1),fr)
+
+## Numerical derivatives 
+## deriv() function in r that finds the numerical derivatives
+
+df<-deriv(z~sin(x^2/2-y^2/4)*cos(2*x-exp(y)),c('x','y'),func=TRUE,hessian=TRUE)
+f3<-function(x) {
+    Dfx<-df(x[1],x[2])
+    f<-Dfx[1]
+    gradf<-attr(Dfx,'gradient')[1,]
+    hessianf<-attr(Dfx,'hessian')[1,,]
+    return(list(f,gradf,hessianf))
+}
+
+
+## Numerical integration
+## Sometimes no anti-derivative exists for a function in closed-form.
+## trapezoid rule - estimates the area under the curve with numerous trapezoids
+## Simpson's rule
+
+
+## Monte Carlo Integration
+## two integrals
+## 1.) x^4 dx [0,1] = 1/5
+## 2.) sin(x)dx [2,5] = ??
+
+# To find the value of integral 1
+u<-runif(100000)
+mean(u^4)
+
+# To find the value of Integral 2
+u<-runif(100000,min=2,max=5)
+mean(sin(u)*(5-2))
+-cos(5)+cos(2)
+
+## some statistics in R
+# R has built-in probability distributions
+# command distribution      parameters
+# beta    beta              shape1 shape2 continuous on (0,1)
+# binom   bionomial         sample size and prob. prob of x successes in n trials
+# cauchy  cauchy            location scale. continuous dist with infinite variance
+# exp     exponential       rate. continuous on (0, +inf)
+# chisq   chi-square        df continuous on (0, infinity)
+# gamma   gamma             shape ?rate continous on (0, infinity)
+# f       f-distr           df1 df2 continuous on (0, infinity)
+# geom    geometric         probability prob first success on x trial.
+# hyper   hypergeometric    m,n,K.
+# nbinom  negative binomial size prob. count variable
+# norm    normal            mean, sd. continuous bell shaped
+# pois    poisson           mean count variable
+# t       student's t       df
+# unif    uniform           min, max
+
+for each base command four functions are available
+    d____ probability density or distribution function (pdf)
+    p____ cumulative distribution function (cdf)
+    q____ quantiles of the distribution
+    r____ random numbers generated from the distribution
+
+curve(pnorm(x), -3,3)
+arrows(-1,0,-1,pnorm(-1),col="red")
+arrows(-1,pnorm(-1),-3,pnorm(-1),col="green")
+
+pnorm(-1)
+
+## to plot the density function
+curve(dnorm(x), -3, 3)
+qqnorm(rnorm(100))
+qqnorm(runif(100))
+qqnorm(rcauchy(100))
+shapiro.test(rnorm(100))
+shapiro.test(runif(100))
+shapiro.test(rcauchy(100))
+
+## Central limit theorem - an illustration
+# if you take repeated samples from a population with finite variance and
+# calculate the sample mean then the sample means will normally distribution in 1
+
+hist(runif(10000)*10,main="")
+
+# now lets look at the distribution of sample means
+means<-numeric(10000)
+for(i in 1:10000 ) {
+    means[i]<-mean(runif(5)*10)
+}
+hist(means,ylim=c(0,1600))
+
+## Other distributions used in hypothesis testing
+## chi-square, f-dist, students t
+
+par(mfrow=c(1,2))
+x<-seq(0,30,.25)
+plot(x,dchisq(x,3),type="l",xlab="df=3")
+plot(x,dchisq(x,20),type="l",xlab="df=20")
+
+par(mfrow=c(1,1))
+x<-seq(0.01,3,0.01)
+plot(x,df(x,1,10),type="1",ylim=c(0,1))
+lines(x,df(x,2,10),lty=6)
+lines(x,df(x,5,10),lty=2)
+lines(x,df(x,30,10),lty=3)
